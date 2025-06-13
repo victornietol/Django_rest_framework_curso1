@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from apps.users.models import User
-from apps.users.api.serializers import UserSerializer
+from apps.users.api.serializers import UserSerializer, TestUserSerializer
 
 class UserAPIView(APIView):
     def get(self, request):
@@ -11,11 +11,26 @@ class UserAPIView(APIView):
         users_serializer = UserSerializer(users, many=True)
         return Response(users_serializer.data, status=status.HTTP_200_OK)
 
+
+
 # Utilizando un decorador
 # Hace lo mismo que la clase anterior para manejar las peticiones, pero aqui se hace con una funcion
 @api_view(['GET', 'POST'])
 def user_api_view(request):
+    
     if request.method == "GET": # Si es peticion GET entonces hace lo mismo que la clase de arriba
+        
+        # Probando metodo de validacion personalizado
+        test_data = {
+            "name": "palabra_prohibida",
+            "email": "palabra_prohibida@cvp.com"
+        }
+        test_user = TestUserSerializer(data=test_data, context=test_data) # Si se le pasa el context entonces se puede obtener la info enviada para validar desde metodos especificos
+        if test_user.is_valid():
+            print("Paso validaciones")
+        else:
+            print(test_user.errors)
+
         users = User.objects.all()
         users_serializer = UserSerializer(users, many=True)
         return Response(users_serializer.data, status=status.HTTP_200_OK)
@@ -26,6 +41,8 @@ def user_api_view(request):
             user_serializer.save()
             return Response(user_serializer.data, status=status.HTTP_201_CREATED)
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST) # Si falla
+
+
 
 # Obtener detalles de un objeto,  actualizar un objeto, eliminar un objeto
 @api_view(["GET", "PUT", "DELETE"])
