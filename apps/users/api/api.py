@@ -21,5 +21,8 @@ def user_api_view(request):
         return Response(users_serializer.data, status=status.HTTP_200_OK)
     
     elif request.method == "PUT":
-        print(request.data)
-        return Response(request.data, status=status.HTTP_200_OK)
+        user_serializer = UserSerializer(data=request.data) # Convertir al modelo
+        if user_serializer.is_valid():
+            user_serializer.save()
+            return Response(user_serializer.data, status=status.HTTP_200_OK)
+        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST) # Si falla
