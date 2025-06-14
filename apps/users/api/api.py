@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from apps.users.models import User
-from apps.users.api.serializers import UserSerializer, TestUserSerializer
+from apps.users.api.serializers import UserSerializer, TestUserSerializer, UserListSerializer
 
 class UserAPIView(APIView):
     def get(self, request):
@@ -33,7 +33,7 @@ def user_api_view(request):
         '''
 
         users = User.objects.all().values("id","username","email","password")
-        users_serializer = UserSerializer(users, many=True)
+        users_serializer = UserListSerializer(users, many=True) # Se utiliza otro serializador para cambiar los se muestra en la peticion
         return Response(users_serializer.data, status=status.HTTP_200_OK)
     
     elif request.method == "POST": #Crear usuario

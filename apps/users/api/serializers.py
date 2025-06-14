@@ -6,6 +6,25 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = "__all__"
 
+    # Sobreescribir metodo para poder cifrar contraseñas
+    def create(self, validated_data):
+        user = User(**validated_data)
+        user.set_password(validated_data["password"]) # Cifrar password
+        user.save()
+        return user
+    
+    # Sobreescribir para cifrar la contraseña
+    def update(self, instance, validated_data):
+        update_user = super().update(instance, validated_data)
+        update_user.set_password(validated_data["password"]) # Cifrar password
+        update_user.save()
+        return update_user
+
+
+class UserListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+
     # Asignando manualmente los campos que se regresaran al utilzar el serializador
     # Es lo que se convierte en json y se devuelve en la peticion
     # Aunque arriba en fields indique que quiero todos los campos, con esto solo me muestra los que yo defino
@@ -13,9 +32,9 @@ class UserSerializer(serializers.ModelSerializer):
         # data = super().to_representation(instance) # Este es el que viene por defecto
         data = {
             "id": instance["id"], # El nombre de las keys puedo asignarlas como yo quiera dependiendo de que nombre quiera que se muestre en la respuesta (esto no cambia mi modelo original)
-            "nombre_usuario": instance["username"], # Si al usar el serializador pido objects.all() entonces utilizo instance.username, si se usa objects.values(<campos>) entonces se usa con corchetes
-            "correo": instance["email"],
-            "clave": instance["password"]
+            "username": instance["username"], # Si al usar el serializador pido objects.all() entonces utilizo instance.username, si se usa objects.values(<campos>) entonces se usa con corchetes
+            "email": instance["email"],
+            "password": instance["password"]
         }
         return data
 
