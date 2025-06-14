@@ -19,19 +19,20 @@ class UserAPIView(APIView):
 def user_api_view(request):
     
     if request.method == "GET": # Si es peticion GET entonces hace lo mismo que la clase de arriba
-        
+        '''
         # Probando metodo de validacion personalizado
         test_data = {
-            "name": "palabra_prohibida",
-            "email": "palabra_prohibida@cvp.com"
+            "name": "palabra",
+            "email": "prohibida@cvp.com"
         }
         test_user = TestUserSerializer(data=test_data, context=test_data) # Si se le pasa el context entonces se puede obtener la info enviada para validar desde metodos especificos
         if test_user.is_valid():
             print("Paso validaciones")
         else:
             print(test_user.errors)
+        '''
 
-        users = User.objects.all()
+        users = User.objects.all().values("id","username","email","password")
         users_serializer = UserSerializer(users, many=True)
         return Response(users_serializer.data, status=status.HTTP_200_OK)
     
@@ -54,7 +55,7 @@ def user_detail_api_view(request, pk=None):
             return Response(user_serializer.data)
 
         elif request.method == "PUT":
-            user_serializer = UserSerializer(user, data=request.data) # (Instancia del usuario a modificar, informacion nueva del usuario)
+            user_serializer = UserSerializer(instance=user, data=request.data) # (Instancia del usuario a modificar, informacion nueva del usuario)
             if user_serializer.is_valid():
                 user_serializer.save()
                 return Response(user_serializer.data, status=status.HTTP_200_OK)

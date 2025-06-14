@@ -6,7 +6,34 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = "__all__"
 
-# Prueba de validaciones personalizadas
+    # Asignando manualmente los campos que se regresaran al utilzar el serializador
+    # Es lo que se convierte en json y se devuelve en la peticion
+    # Aunque arriba en fields indique que quiero todos los campos, con esto solo me muestra los que yo defino
+    def to_representation(self, instance):
+        # data = super().to_representation(instance) # Este es el que viene por defecto
+        data = {
+            "id": instance["id"], # El nombre de las keys puedo asignarlas como yo quiera dependiendo de que nombre quiera que se muestre en la respuesta (esto no cambia mi modelo original)
+            "nombre_usuario": instance["username"], # Si al usar el serializador pido objects.all() entonces utilizo instance.username, si se usa objects.values(<campos>) entonces se usa con corchetes
+            "correo": instance["email"],
+            "clave": instance["password"]
+        }
+        return data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Prueba de validaciones personalizadas y definir metodos personalizados con diferente logica para
+# funciones create(), update(), save() de cada serializador definido
 class TestUserSerializer(serializers.Serializer):
     name = serializers.CharField(max_length = 200)
     email = serializers.EmailField()
