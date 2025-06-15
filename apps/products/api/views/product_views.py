@@ -22,3 +22,31 @@ class ProductCreateAPIView(generics.CreateAPIView):
                 status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+# Obtener solo un elemento en lugar de una lista
+class ProductRetrieveAPIView(generics.RetrieveAPIView):
+    serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        return self.get_serializer().Meta.model.objects.filter(state=True)
+    
+
+# Eliminar un elemento, lo manda a llamar el metodo DELETE
+class ProductDestroyAPIView(generics.DestroyAPIView):
+    serializer_class = ProductSerializer
+
+    def get_queryset(self): # Necesario para filtrar elemento
+        return self.get_serializer().Meta.model.objects.filter(state=True)
+    
+    # Definir manualmente lo que hace DELETE, en este caso es un eliminacion logica
+    def delete(self, request, pk=None):
+        product = self.get_queryset().filter(id=pk).first()
+        if product:
+            product.state = False
+            product.save()
+            return Response(
+                {"message": "Producto eliminado correctamemte."},
+                status=status.HTTP_200_OK
+            )
+        return Response({"error":"No existe un producto con esos datos"},status=status.HTTP_400_BAD_REQUEST)

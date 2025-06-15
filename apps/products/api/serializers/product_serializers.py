@@ -28,6 +28,7 @@ class ProductSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         return {
             "id":instance.id,
+            "name": instance.name,
             "description": instance.description,
             #"image": instance.image if instance.image != "" else "",
             "image": instance.image.url if instance.image and hasattr(instance.image, "url") else "",
