@@ -50,3 +50,29 @@ class ProductDestroyAPIView(generics.DestroyAPIView):
                 status=status.HTTP_200_OK
             )
         return Response({"error":"No existe un producto con esos datos"},status=status.HTTP_400_BAD_REQUEST)
+
+
+# Actualizacion de elemento
+class ProductUpdateAPIView(generics.UpdateAPIView):
+    serializer_class = ProductSerializer
+
+    def get_queryset(self, pk): # indica que es lo que se va a regresar
+        return self.get_serializer().Meta.model.objects.filter(state=True).filter(id=pk).first()
+    
+    # Aqui ahora PATCH me va solo a devolver el objeto, ya no lo actualiza
+    def patch(self, request, pk=None):
+        product = self.get_queryset(pk)
+        if product:
+            product_serializer = self.serializer_class(product)
+            return Response(product_serializer.data, status=status.HTTP_200_OK)
+        return Response({"error":"No existe un producto con esos datos"},status=status.HTTP_400_BAD_REQUEST)
+
+    # Personalizar el funcionamiento de PUT
+    def put(self, request, pk=None):
+        product = self.get_queryset(pk)
+        if product:
+            product_serializer = self.serializer_class(product, data=request.data)
+            if product_serializer.is_valid():
+                product_serializer.save()
+                return Response(product_serializer.data, status=status.HTTP_200_OK)
+            return Response(product_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
