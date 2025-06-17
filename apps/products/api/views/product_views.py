@@ -1,11 +1,85 @@
-from rest_framework import generics
+from rest_framework import generics, viewsets
 from rest_framework import status
-from rest_framework.response import Response 
+from rest_framework.response import Response
 
 from apps.base.api import GeneralListAPIView
 from apps.products.api.serializers.product_serializers import ProductSerializer
 
 
+# Utilizacion de ViewSets, para usarlo en urls se debe manejar a traves de Router()
+# Con ModelViewSet se puede modificar ahora list(), retrieve(), etc. para manejar las peticiones GET, PUT, POST, etc.
+class ProductViewSet(viewsets.ModelViewSet):
+    serializer_class = ProductSerializer
+    #queryset = ProductSerializer.Meta.model.objects.filter(state=True) # Si no se define get_queryset
+
+    # Si se sobreescriben los metodos se necesita get_queryset
+    def get_queryset(self, pk=None):
+        if pk is None:
+            return self.get_serializer().Meta.model.objects.filter(state=True)
+        return self.get_serializer().Meta.model.objects.filter(id=pk, state=True).first()
+        
+    def list(self, request):
+        product_serializer = self.get_serializer(self.get_queryset(), many=True)
+        return Response(product_serializer.data, status=status.HTTP_200_OK)
+
+    # Manejo manual de la peticion POST
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "Producto creado correctamente"},
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Actualizar
+    def update(self, request, pk=None):
+        product = self.get_queryset(pk)
+        if product:
+            product_serializer = self.serializer_class(product, data=request.data)
+            if product_serializer.is_valid():
+                product_serializer.save()
+                return Response(product_serializer.data, status=status.HTTP_200_OK)
+            return Response(product_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    # Definir manualmente lo que hace DELETE, en este caso es un eliminacion logica
+    def destroy(self, request, pk=None):
+        product = self.get_queryset().filter(id=pk).first()
+        if product:
+            product.state = False
+            product.save()
+            return Response(
+                {"message": "Producto eliminado correctamemte."},
+                status=status.HTTP_200_OK
+            )
+        return Response({"error":"No existe un producto con esos datos"},status=status.HTTP_400_BAD_REQUEST)
+
+    '''
+    # Se pueden sobreescribir varios metodos, entre los cuales:
+    def list(self, request): # Peticiones GET
+        pass
+
+    def create(self, request): # Peticiones POST
+        pass
+
+    def retrieve(self, request, pk=None): # Peticiones GET con un elemento (necesita pk por ejemplo)
+        pass
+
+    def update(self, request, pk=None): # PUT
+        pass
+
+    def partial_update(self, request, pk=None): # PATCH
+        pass
+
+    def destroy(self, request, pk=None): # DELETE
+        pass
+    '''
+
+
+
+
+# UTILIZACION DE CLASES Y METODOS ESPECIFICOS PARA CONTROLAR LAS PETICIONES
 class ProductListAPIView(GeneralListAPIView):
     serializer_class = ProductSerializer
 
