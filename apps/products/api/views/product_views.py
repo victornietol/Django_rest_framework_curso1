@@ -3,12 +3,13 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from apps.base.api import GeneralListAPIView
+from apps.users.authentication_mixins import Authentication # Autenticacion
 from apps.products.api.serializers.product_serializers import ProductSerializer
 
 
 # Utilizacion de ViewSets, para usarlo en urls se debe manejar a traves de Router()
 # Con ModelViewSet se puede modificar ahora list(), retrieve(), etc. para manejar las peticiones GET, PUT, POST, etc.
-class ProductViewSet(viewsets.ModelViewSet):
+class ProductViewSet(Authentication, viewsets.ModelViewSet): # Se hereda de Authentication tambien para incluir la logica de logueo y tokens
     serializer_class = ProductSerializer
     #queryset = ProductSerializer.Meta.model.objects.filter(state=True) # Si no se define get_queryset
 

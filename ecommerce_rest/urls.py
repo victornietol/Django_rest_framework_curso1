@@ -8,7 +8,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 # Autenticacion de usuarios
-from apps.users.views import Login, Logout
+from apps.users.views import Login, Logout, UserToken
 
 # Necesario para drf-yasg
 schema_view = get_schema_view(
@@ -33,6 +33,7 @@ urlpatterns = [
     # Auth de usuarios
     path("", Login.as_view(), name="login"),
     path("logout/", Logout.as_view(), name="logout"),
+    path("refresh-token/", UserToken.as_view(), name="refresh_token"), # Vista para refrescar token
 
     path("admin/", admin.site.urls),
     path("usuario/", include("apps.users.api.urls")),

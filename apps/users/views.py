@@ -13,6 +13,23 @@ from rest_framework.authtoken.views import ObtainAuthToken
 
 from apps.users.api.serializers import UserTokenSerializer
 
+
+# Vista para renovar token
+class UserToken(APIView):
+    def get(self, request, *args, **kwargs):
+        username = request.GET.get("username")
+        # Verificar que el usuario tenga un token
+        try:
+            user_token = Token.objects.get(
+                user = UserTokenSerializer().Meta.model.objects.filter(username=username).first()
+            )
+            return Response({"token": user_token.key}, status=status.HTTP_200_OK)
+        except:
+            return Response(
+                {"error": "Credenciales enviadas incorrectas."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
 class Login(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
         # Este serializador ya contiene los campos username y password
