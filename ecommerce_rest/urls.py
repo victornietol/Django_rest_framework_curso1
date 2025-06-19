@@ -31,7 +31,7 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
     # Auth de usuarios
-    path("", Login.as_view(), name="login"),
+    path("login/", Login.as_view(), name="login"),
     path("logout/", Logout.as_view(), name="logout"),
     path("refresh-token/", UserToken.as_view(), name="refresh_token"), # Vista para refrescar token
 
