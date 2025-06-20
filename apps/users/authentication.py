@@ -9,7 +9,6 @@ from rest_framework.exceptions import AuthenticationFailed
 
 # Expiracion de token
 class ExpiringTokenAuthentication(TokenAuthentication):
-    expired = False # Indicar el estado de un token
 
     def expires_in(self, token):
         time_elapsed = timezone.now() - token.created
@@ -23,27 +22,18 @@ class ExpiringTokenAuthentication(TokenAuthentication):
         is_expire = self.is_token_expired(token)
         if is_expire:
             # Cuando el token ha expirado
-            self.expired = True
             user = token.user
             token.delete() # Borrar token
             token = self.get_model().objects.create(user=user) # Crear nuevo token (refrescar token), en otros casos se puede hacer otra accion en lugar de esta si se prefiere
-        return is_expire, token
+        return token
 
     def authenticate_credentials(self, key):
-        message, token, user = None, None, None # Para no repetir el mensaje "TOKEN EXPIRADO"
+        user = None # Para no repetir el mensaje "TOKEN EXPIRADO"
         try:
-            token = self.get_model().objects.select_related("user").get(key=key)
+            token = self.get_model().objects.select_related("user").get(key=key) # Obtener instancia de token
+            token = self.token_expire_handler(token)
             user = token.user
         except self.get_model().DoesNotExist:
-            message = "Token invalido"
-            self.expired = True
-        else:
-            # Si se encontro token
-            if not token.user.is_active:
-                message = "Usuario no activo o eliminado."
-            
-            is_expired = self.token_expire_handler(token)
-            if is_expired:
-                message = "Su Token ha expirado."
+            pass
         
-        return (user, token, message, self.expired)
+        return user

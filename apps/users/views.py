@@ -11,19 +11,25 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 
+from apps.users.authentication_mixins import Authentication
 from apps.users.api.serializers import UserTokenSerializer
 
 
 # Vista para renovar token
-class UserToken(APIView):
+class UserToken(Authentication, APIView):
+    '''
+    Validate token
+    '''
     def get(self, request, *args, **kwargs):
-        username = request.GET.get("username")
+        #username = request.GET.get("username")
         # Verificar que el usuario tenga un token
         try:
-            user_token = Token.objects.get(
-                user = UserTokenSerializer().Meta.model.objects.filter(username=username).first()
-            )
-            return Response({"token": user_token.key}, status=status.HTTP_200_OK)
+            user_token, _ = Token.objects.get_or_create(user = self.user)
+            user = UserTokenSerializer(self.user)
+            return Response({
+                "token": user_token.key,
+                "user": user.data
+            }, status=status.HTTP_200_OK)
         except:
             return Response(
                 {"error": "Credenciales enviadas incorrectas."},
@@ -56,7 +62,7 @@ class Login(ObtainAuthToken):
                 else:
                     # Si se quiere iniciar sesion cuando ya hay una sesion activa
 
-                    '''
+                    
                     # Si se quieren cerrar todas las sesion activas y solo dejar la actual 
                     # o ultima (esto quiere decir que solo se puede iniciar sesion en un lugar a 
                     # la vez)
@@ -77,11 +83,10 @@ class Login(ObtainAuthToken):
                         },
                         status=status.HTTP_201_CREATED
                     )
-                    '''
 
                     # Si solo se quiere permitir iniciar sesion si no hay una sesion activa
-                    token.delete()
-                    return Response({"error":"Ya se ha iniciado sesion con este usuario"}, status=status.HTTP_409_CONFLICT)
+                    #token.delete()
+                    #return Response({"error":"Ya se ha iniciado sesion con este usuario"}, status=status.HTTP_409_CONFLICT)
             else:
                 return Response({"error":"El usuario no puede iniciar sesion"}, status=status.HTTP_401_UNAUTHORIZED)
         else:

@@ -19,10 +19,12 @@ async function enviarPeticion(event) {
         console.log(body);
 
         // Mensaje dependiendo la respuesta
-        if (response.ok) {
+        if (response.status == 200 || response.status == 201) {
             console.log(body.message);
+            document.getElementById("response").innerHTML = body.message;
         } else {
             console.log(body.error);
+            document.getElementById("response").innerHTML = body.error;
         }
 
 
