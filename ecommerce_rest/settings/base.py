@@ -118,10 +118,12 @@ AUTH_USER_MODEL = "users.User"
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",
+    "http://localhost:3000",
 ]
 
 CORS_ORIGIN_WHITELIST = [
     "http://127.0.0.1:5500",
+    "http://localhost:3000",
 ]
 
 # Static files (CSS, JavaScript, Images)

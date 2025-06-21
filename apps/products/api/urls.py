@@ -1,15 +1,15 @@
 from django.urls import path
 
-from apps.products.api.views.general_views import MeasureUnitListAPIView, IndicatorListAPIView, CategoryProductListAPIView
+from apps.products.api.views.general_views import MeasureUnitViewSet, IndicatorViewSet, CategoryProductViewSet
 from apps.products.api.views.product_views import (
     ProductListAPIView, ProductCreateAPIView, ProductRetrieveAPIView, ProductDestroyAPIView,
     ProductUpdateAPIView, ProductListCreateAPIView, ProductRetrieveUpdateDestroyAPIView
 )
 
 urlpatterns = [
-    path("measure_unit/", MeasureUnitListAPIView.as_view(), name="measure_unit"),
-    path("indicator/", IndicatorListAPIView.as_view(), name="indicator"),
-    path("category_product/", CategoryProductListAPIView.as_view(), name="category_product"),
+    path("measure_unit/", MeasureUnitViewSet.as_view(), name="measure_unit"),
+    path("indicator/", IndicatorViewSet.as_view(), name="indicator"),
+    path("category_product/", CategoryProductViewSet.as_view(), name="category_product"),
 
     path("product/", ProductListCreateAPIView.as_view(), name="product"), # Combina e lfuncionamiento de las dos urls siguientes
     #path("product/list/", ProductListAPIView.as_view(), name="product_list"),
