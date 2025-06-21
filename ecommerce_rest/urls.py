@@ -8,7 +8,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 # Autenticacion de usuarios personalizada
-from apps.users.views import Login, Logout, UserToken
+from apps.users.views import LoginCustom, LogoutCustom, UserToken, Login, Logout
 
 # Autenticacion con JWT
 from rest_framework_simplejwt.views import (
@@ -37,13 +37,15 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
     # Auth de usuarios personalizada
-    path("login/", Login.as_view(), name="login"),
-    path("logout/", Logout.as_view(), name="logout"),
+    path("login_custom/", LoginCustom.as_view(), name="login_custom"),
+    path("logout_custom/", LogoutCustom.as_view(), name="logout_custom"),
     # path("refresh-token/", UserToken.as_view(), name="refresh_token"), # Vista para refrescar token
 
     # Auth de usuarios con JWT
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'), # Regresa el token de acceso y de refresco
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), # Refresca el token que se esta utilizando para acceder
+    path("login/", Login.as_view(), name="login"), # Login custom con SimpleJWT
+    path("logout/", Logout.as_view(), name="logout"), # Logout custom con SimpleJWT
 
     path("admin/", admin.site.urls),
     path("usuario/", include("apps.users.api.urls")),
