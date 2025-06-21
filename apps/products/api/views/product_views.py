@@ -1,9 +1,10 @@
 from rest_framework import generics, viewsets
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated # Para simple JWT
 
 from apps.base.api import GeneralListAPIView
-from apps.users.authentication_mixins import Authentication # Autenticacion
+from apps.users.authentication_mixins import Authentication # Autenticacion personalizada
 from apps.products.api.serializers.product_serializers import ProductSerializer
 
 
@@ -12,6 +13,8 @@ from apps.products.api.serializers.product_serializers import ProductSerializer
 class ProductViewSet(viewsets.ModelViewSet): # Se hereda de Authentication tambien para incluir la logica de logueo y tokens
     serializer_class = ProductSerializer
     #queryset = ProductSerializer.Meta.model.objects.filter(state=True) # Si no se define get_queryset
+
+    # permission_classes = (IsAuthenticated,) # Para verificar la autenticacion, es necesario para utilizar SimpleJWT. De esta manaera se asigna a una clase en especifico
 
     # Si se sobreescriben los metodos se necesita get_queryset
     def get_queryset(self, pk=None):
