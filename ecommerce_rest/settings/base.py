@@ -49,7 +49,13 @@ SWAGGER_SETTINGS = {
     'DOC_EXPANSION': 'none'
 }
 
-TOKEN_EXPIRED_AFTER_SECONDS = 10 # Variable personalizada para la expiracion de tokens en authentication.py (segundos)
+TOKEN_EXPIRED_AFTER_SECONDS = 8000 # Variable personalizada para la expiracion de tokens en authentication.py (segundos)
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "apps.users.authentication_mixins.Authentication",
+    ]
+}
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",

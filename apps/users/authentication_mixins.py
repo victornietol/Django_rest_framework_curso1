@@ -1,11 +1,11 @@
 from rest_framework.authentication import get_authorization_header
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
-from rest_framework import status
+from rest_framework import status, authentication, exceptions
 
 from apps.users.authentication import ExpiringTokenAuthentication
 
-class Authentication(object):
+class Authentication(authentication.BaseAuthentication):
     user = None # Variables para manejo en la expiracion del token
 
     def get_user(self, request):
@@ -24,7 +24,14 @@ class Authentication(object):
                 return user
                 
         return None
+    
+    def authenticate(self, request):
+        self.get_user(request)
+        if self.user is None:
+            raise exceptions.AuthenticationFailed("Credenciales incorrectas.")
+        return (self.user, None)
 
+    '''
     def dispatch(self, request, *args, **kwargs):
         user = self.get_user(request)
         # Se encontro un token en la peticion
@@ -39,3 +46,4 @@ class Authentication(object):
         response.accepted_media_type = "application/json"
         response.renderer_context = {}
         return response
+    '''
