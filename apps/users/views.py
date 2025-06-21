@@ -42,13 +42,6 @@ class Login(TokenObtainPairView):
             return Response({"error":"Contraseña o nombre de usuario incorrectos."}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"error":"Contraseña o nombre de usuario incorrectos."}, status=status.HTTP_400_BAD_REQUEST)
 
-class Logout(GenericAPIView):
-    def post(self, request, *args, **kwargs):
-        user = User.objects.filter(id=request.data.get("user", 0))
-        if user.exists():
-            RefreshToken.for_user(user.first())
-            return Response({"message": "Sesion cerrada correctamente."}, status=status.HTTP_200_OK)
-        return Response({"error":"El usuario no existe."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -62,7 +55,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 
 from apps.users.authentication_mixins import Authentication
-from apps.users.api.serializers import UserTokenSerializer
+from apps.users.api.serializers import UserTokenSerializer, UserLogoutSerializer
 
 # Vista para renovar token
 class UserToken(Authentication, APIView):
@@ -173,3 +166,12 @@ class LogoutCustom(APIView):
                             status=status.HTTP_409_CONFLICT)
     
         
+
+class Logout(GenericAPIView):
+    serializer_class = UserLogoutSerializer # Serializador vacio para que no muestre error
+    def post(self, request, *args, **kwargs):
+        user = User.objects.filter(id=request.data.get("user", 0))
+        if user.exists():
+            RefreshToken.for_user(user.first())
+            return Response({"message": "Sesion cerrada correctamente."}, status=status.HTTP_200_OK)
+        return Response({"error":"El usuario no existe."}, status=status.HTTP_400_BAD_REQUEST)

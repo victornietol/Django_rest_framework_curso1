@@ -47,6 +47,7 @@ urlpatterns = [
     path("login/", Login.as_view(), name="login"), # Login custom con SimpleJWT
     path("logout/", Logout.as_view(), name="logout"), # Logout custom con SimpleJWT
 
+    path("users/", include("apps.users.api.routers")), # Rutas para User con GenericViewSet
     path("admin/", admin.site.urls),
     path("usuario/", include("apps.users.api.urls")),
     # path("products/", include("apps.products.api.urls")), # Este enlaza las funciones individuales para manejar las peticiones

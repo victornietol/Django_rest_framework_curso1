@@ -52,11 +52,20 @@ class UserListSerializer(serializers.ModelSerializer):
             "id": instance["id"], # El nombre de las keys puedo asignarlas como yo quiera dependiendo de que nombre quiera que se muestre en la respuesta (esto no cambia mi modelo original)
             "username": instance["username"], # Si al usar el serializador pido objects.all() entonces utilizo instance.username, si se usa objects.values(<campos>) entonces se usa con corchetes
             "email": instance["email"],
-            "password": instance["password"]
+            "name": instance["name"]
         }
         return data
+    
+
+class UserLogoutSerializer(serializers.Serializer):
+    pass
 
 
+# Serializador para Actualizaciones
+class UpdateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("username", "email", "name", "last_name")
 
 
 
