@@ -1,12 +1,15 @@
 from rest_framework import status
-from rest_framework.decorators import api_view 
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 
 from apps.users.models import User
-from apps.users.api.serializers import UserSerializer, TestUserSerializer, UserListSerializer, UpdateUserSerializer
+from apps.users.api.serializers import (
+    UserSerializer, TestUserSerializer, UserListSerializer, UpdateUserSerializer,
+    PasswordSerializer
+)
 
 
 #### UTILIZANDO CLASES PARA USERS ####
@@ -23,6 +26,23 @@ class UserViewSet(viewsets.GenericViewSet):
         if self.queryset is None:
             self.queryset = self.model.objects.filter(is_active=True).values("id","username","email","name")
         return self.queryset
+    
+    # Funcion personalizada para una ruta personalizada
+    @action(detail=True, methods=["post"])
+    def set_password(self, request, pk=None): # La ruta se nombra como la funcion a menos que se indique 'url_path=', en este caso tambien inclute 'id' al asignar detail=True. entonces 'users/{id}/set_password/'
+        '''Actualizar password'''
+        user = self.get_object(pk)
+        password_serializer = PasswordSerializer(data=request.data)
+        if password_serializer.is_valid():
+            user.set_password(password_serializer.validated_data["password"])
+            user.save()
+            return Response({
+                "message": "Contraseña actualizada correctamente."
+            })
+        return Response({
+            "message": "Hay errores en la informacion enviada.",
+            "errors": password_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
 
     def list(self, request):
         users = self.get_queryset()
